@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>e-Limbah RSUD</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e8c83">
+<link rel="apple-touch-icon" href="logo.png">
+
+<style>
+body{
+ margin:0;
+ font-family:'Poppins',sans-serif;
+ background:linear-gradient(#0e8c83,#0b6f69);
+}
+
+.container{
+ max-width:420px;
+ margin:auto;
+ padding:14px;
+}
+
+.card{
+ background:#f4f6f6;
+ border-radius:22px;
+ padding:18px;
+ margin-top:14px;
+}
+
+.center{text-align:center;}
+
+.logo{
+ width:110px;
+ margin-bottom:8px;
+}
+
+.title{
+ font-size:24px;
+ font-weight:600;
+ color:#1A8C84;
+}
+
+.subtitle{
+ font-size:18px;
+ color:#1A8C84;
+ font-weight:500;
+ letter-spacing:0.5px;
+}
+
+.clock{
+ font-size:14px;
+ color:#1A8C84;
+ margin-top:4px;
+ font-weight:500;
+}
+
+.section-title{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ color:#1A8C84;
+ font-weight:600;
+ margin-bottom:12px;
+}
+
+.nama-label{
+ text-align:center;
+ font-weight:600;
+ color:#1A8C84;
+ margin-bottom:6px;
+}
+
+.wajib{color:red;}
+
+#errorNama{
+ font-size:14px;
+ color:red;
+ text-align:center;
+}
+
+#nama{
+ width:100%;
+ text-align:center;
+ padding:14px;
+ border-radius:12px;
+ border:1px solid #ccc;
+ margin-bottom:10px;
+ box-sizing:border-box;
+ font-size:18px;
+}
+
+.input-row{
+ display:flex;
+ align-items:center;
+ gap:10px;
+ margin-bottom:12px;
+}
+
+.icon-box{
+ width:55px;
+ height:55px;
+ border-radius:12px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+}
+
+.b3{background:#F4C300;}
+.dom{background:black;}
+
+.input-box{flex:1;}
+
+.label{
+ font-size:14px;
+ font-weight:500;
+ margin-bottom:4px;
+}
+
+.input-box input{
+ width:120px;
+ padding:10px;
+ border-radius:10px;
+ border:1px solid #ccc;
+ font-size:18px;
+}
+
+input.error{
+ border:2px solid red;
+}
+
+.total-box{
+ border:2px dashed #1A8C84;
+ border-radius:12px;
+ padding:10px;
+ display:flex;
+ justify-content:space-between;
+ color:#1A8C84;
+ font-weight:600;
+}
+
+.btn{
+ width:100%;
+ padding:14px;
+ background:#1A8C84;
+ border:none;
+ border-radius:14px;
+ color:white;
+ margin-top:12px;
+ font-size:16px;
+ font-weight:600;
+}
+
+.table-box{
+ background:white;
+ border-radius:12px;
+ overflow-x:auto;
+}
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ font-size:12px;
+ min-width:500px;
+}
+
+th{
+ background:#eee;
+ padding:8px;
+}
+
+td{
+ padding:8px;
+ border-top:1px solid #ddd;
+ text-align:center;
+}
+
+.total-green{
+ color:#1A8C84;
+ font-weight:600;
+}
+
+.btn-edit{
+ background:#1A8C84;
+ border:none;
+ border-radius:6px;
+ width:26px;
+ height:26px;
+ color:white;
+}
+
+.rekap-btn{
+ text-align:center;
+ color:#1A8C84;
+ margin-top:10px;
+ font-weight:600;
+ cursor:pointer;
+}
+
+.footer{
+ text-align:center;
+ color:white;
+ font-size:14px;
+ margin-top:18px;
+ font-weight:700;
+}
+
+.filter-date{
+ width:100%;
+ padding:10px;
+ border-radius:10px;
+ border:1px solid #ccc;
+ margin-bottom:12px;
+ box-sizing:border-box;
+ font-family:'Poppins',sans-serif;
+}
+
+.pdf-btn{
+ width:100%;
+ padding:10px;
+ border:none;
+ border-radius:10px;
+ background:#1A8C84;
+ color:white;
+ font-weight:600;
+ margin-bottom:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card center">
+
+ <img src="logo.png" class="logo">
+
+ <div class="title">
+  e-Limbah RSUD
+ </div>
+
+ <div class="subtitle">
+  KH. Muhammad Thohir Krui
+ </div>
+
+ <div id="clock" class="clock"></div>
+
+</div>
+
+<!-- PENGUMUMAN APLIKASI -->
+<div style="
+  max-width:420px;
+  margin:14px auto 0;
+  padding:0 14px;
+">
+
+  <div style="
+    background:#fff3cd;
+    border:1px solid #ffe69c;
+    color:#856404;
+    padding:12px 14px 16px;
+    border-radius:14px;
+    font-size:13px;
+    line-height:1.6;
+    font-family:'Poppins',sans-serif;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+  ">
+
+    <b>📢 Perhatian bu ibuu:</b> Sekarang e-Limbah RSUD sudah tersedia dalam bentuk aplikasi untuk memudahkan melakukan input data limbah di android, sehingga tidak hanya input melalui link website. Terima kasih💜
+
+    <div style="
+      margin-top:12px;
+      text-align:center;
+    ">
+
+      <a href="e-limbah RSUD KH. M. THOHIR KRUI_1_1.0.apk"
+         download
+         style="
+          display:inline-block;
+          background:#1A8C84;
+          color:#ffffff;
+          text-decoration:none;
+          padding:10px 18px;
+          border-radius:12px;
+          font-size:13px;
+          font-weight:600;
+          box-shadow:0 2px 6px rgba(0,0,0,0.12);
+         ">
+
+         📲 Download Aplikasi
+
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="card">
+
+ <div class="section-title">
+  <i class="fa fa-clipboard"></i>
+  INPUT LIMBAH
+ </div>
+
+ <div class="nama-label">
+  NAMA PETUGAS <span class="wajib">*</span>
+ </div>
+
+ <input id="nama" placeholder="Wajib diisi (ketik nama disini)">
+
+ <div id="errorNama"></div>
+
+ <div class="input-row">
+
+  <div class="icon-box b3">
+   <i class="fa fa-biohazard" style="font-size:26px;color:black;"></i>
+  </div>
+
+  <div class="input-box">
+   <div class="label">Limbah B3 (kg)</div>
+
+   <input id="b3" type="number" min="0" max="999" placeholder="(Hanya angka)">
+  </div>
+
+ </div>
+
+ <div class="input-row">
+
+  <div class="icon-box dom">
+   <i class="fa fa-trash" style="font-size:26px;color:white;"></i>
+  </div>
+
+  <div class="input-box">
+   <div class="label">Limbah Domestik (kg)</div>
+
+   <input id="dom" type="number" min="0" max="999" placeholder="(Hanya angka)">
+  </div>
+
+ </div>
+
+ <div class="total-box">
+  <span>TOTAL</span>
+  <span id="total">0.00 kg</span>
+ </div>
+
+ <button class="btn" onclick="simpan()">
+  SIMPAN DATA LIMBAH
+ </button>
+
+</div>
+
+<!-- RIWAYAT -->
+<div class="card">
+
+ <div class="section-title">
+  <i class="fa fa-clock"></i>
+  RIWAYAT PENIMBANGAN
+ </div>
+
+ <div style="
+ color:#1A8C84;
+ font-size:13px;
+ font-weight:500;
+ margin-bottom:6px;
+ ">
+  Lihat jumlah berdasarkan tanggal
+ </div>
+
+ <input type="date" id="filterTanggal" class="filter-date">
+
+ <div class="table-box">
+
+  <table>
+
+   <thead>
+    <tr>
+     <th>Tanggal</th>
+     <th>Petugas</th>
+     <th>B3</th>
+     <th>Domestik</th>
+     <th>Total</th>
+     <th></th>
+    </tr>
+   </thead>
+
+   <tbody id="tabel"></tbody>
+
+  </table>
+
+ </div>
+
+ <button class="pdf-btn"
+ onclick="exportPDFHarian()"
+ style="margin-top:12px;">
+
+  Download PDF Harian
+
+ </button>
+
+ <div class="rekap-btn" onclick="toggleRekap()">
+  📊 Rekap Limbah Bulanan
+ </div>
+
+</div>
+
+<!-- REKAP -->
+<div class="card" id="rekapBox" style="display:none;">
+
+ <select id="filterBulan"
+ style="width:100%;padding:8px;margin-bottom:10px;border-radius:8px;">
+
+  <option value="">Semua Bulan</option>
+
+ </select>
+
+ <button onclick="exportPDF()"
+ style="width:100%;padding:10px;margin-bottom:10px;border:none;border-radius:8px;background:#1A8C84;color:white;">
+
+  Export PDF Bulanan
+
+ </button>
+
+ <canvas id="chart"></canvas>
+
+ <div id="totalBulanan"
+ style="text-align:center;margin-top:10px;font-weight:600;color:#1A8C84;">
+ </div>
+
+</div>
+
+<!-- DOWNLOAD APK -->
+<div style="text-align:center;margin-top:18px;">
+
+ <a href="e-limbah RSUD KH. M. THOHIR KRUI_1_1.0.apk"
+ download
+ style="
+ display:inline-block;
+ padding:12px 18px;
+ background:#1A8C84;
+ color:white;
+ text-decoration:none;
+ border-radius:14px;
+ font-weight:600;
+ font-family:Poppins,sans-serif;
+ ">
+
+ 📲 Download Aplikasi
+
+ </a>
+
+</div>
+
+<div class="footer">
+ ♻️KESEHATAN LINGKUNGAN♻️
+</div>
+
+</div>
+
+<script>
+
+// JAM REAL TIME
+function updateClock(){
+
+ let now=new Date();
+
+ let tgl=now.toLocaleDateString('id-ID',{
+  weekday:'long',
+  year:'numeric',
+  month:'long',
+  day:'numeric'
+ });
+
+ let jam=now.toLocaleTimeString('id-ID');
+
+ document.getElementById("clock").innerText=
+ tgl+" | "+jam+" WIB";
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+// FIREBASE
+const firebaseConfig={
+ apiKey:"AIzaSyA9hQWa9pz4UYsXj9TF2OyIyIR4cO5wWWg",
+ authDomain:"e-limbah-rsud-8724e.firebaseapp.com",
+ projectId:"e-limbah-rsud-8724e"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db=firebase.firestore();
+
+let editId=null;
+let chart;
+let dataBulananGlobal={};
+let dataHarianGlobal=[];
+
+function r(n){
+ return Number(n).toFixed(2);
+}
+
+
+// HITUNG TOTAL
+b3.oninput=dom.oninput=()=>{
+
+ if(b3.value>999) b3.value=999;
+ if(dom.value>999) dom.value=999;
+
+ total.innerText=
+ r((+b3.value||0)+(+dom.value||0))+" kg";
+};
+
+
+// VALIDASI NAMA
+nama.oninput=()=>{
+ nama.classList.remove("error");
+ errorNama.innerText="";
+};
+
+
+// VALIDASI INPUT
+function validasi(){
+
+ let ok=true;
+
+ if(!nama.value.trim()){
+
+  nama.classList.add("error");
+
+  errorNama.innerText="Nama wajib diisi yaa Ibu-ibu";
+
+  alert("Gagal input, wajib isi nama");
+
+  ok=false;
+ }
+
+ let b3v=parseFloat(b3.value)||0;
+ let domv=parseFloat(dom.value)||0;
+
+ if(b3v===0 && domv===0){
+
+  alert("Minimal isi salah satu jumlah limbah");
+
+  ok=false;
+ }
+
+ if(b3v>999 || domv>999){
+
+  alert("Maksimal 999 kg");
+
+  ok=false;
+ }
+
+ return ok;
+}
+
+
+// SIMPAN
+function simpan(){
+
+ if(!validasi()) return;
+
+ let data={
+  nama:nama.value,
+  b3:+b3.value||0,
+  dom:+dom.value||0,
+  tanggal:firebase.firestore.Timestamp.now()
+ };
+
+ let aksi=editId
+  ? db.collection("limbah").doc(editId).update(data)
+  : db.collection("limbah").add(data);
+
+ aksi.then(()=>alert("Data berhasil disimpan"))
+     .catch(()=>alert("Gagal menyimpan data"));
+
+ editId=null;
+
+ nama.value="";
+ b3.value="";
+ dom.value="";
+
+ total.innerText="0.00 kg";
+}
+
+
+// LOAD DATA
+function loadData(){
+
+ db.collection("limbah")
+ .orderBy("tanggal","desc")
+ .onSnapshot(snap=>{
+
+  tabel.innerHTML="";
+
+  let bulanan={};
+
+  let totalHari=0;
+  let totalB3Hari=0;
+  let totalDomHari=0;
+
+  dataHarianGlobal=[];
+
+  let selectedDate=filterTanggal.value;
+
+  if(!selectedDate){
+
+   let now=new Date();
+
+   selectedDate=
+   now.toISOString().split("T")[0];
+
+   filterTanggal.value=selectedDate;
+  }
+
+  snap.forEach(doc=>{
+
+   let d=doc.data();
+
+   let t=d.tanggal.toDate();
+
+   let tglData=
+   new Date(
+    t.getTime()-(t.getTimezoneOffset()*60000)
+   )
+   .toISOString()
+   .split("T")[0];
+
+   if(tglData===selectedDate){
+
+    let tot=d.b3+d.dom;
+
+    dataHarianGlobal.push({
+     tanggal:t,
+     nama:d.nama,
+     b3:d.b3,
+     dom:d.dom,
+     total:tot
+    });
+
+    tabel.innerHTML+=`
+    <tr>
+
+     <td>
+      ${t.toLocaleDateString()}
+      <br>
+      <small>${t.toLocaleTimeString('id-ID')} WIB</small>
+     </td>
+
+     <td>${d.nama}</td>
+
+     <td>${r(d.b3)}</td>
+
+     <td>${r(d.dom)}</td>
+
+     <td class="total-green">
+      ${r(tot)}
+     </td>
+
+     <td>
+      <button class="btn-edit"
+      onclick="edit('${doc.id}',${d.b3},${d.dom},'${d.nama}')">
+      ✏️
+      </button>
+     </td>
+
+    </tr>`;
+
+    totalHari+=tot;
+    totalB3Hari+=d.b3;
+    totalDomHari+=d.dom;
+   }
+
+   let bulan=t.toLocaleString('id-ID',{
+    month:'long',
+    year:'numeric'
+   });
+
+   if(!bulanan[bulan]){
+
+    bulanan[bulan]={
+     b3:0,
+     dom:0
+    };
+   }
+
+   bulanan[bulan].b3+=d.b3;
+   bulanan[bulan].dom+=d.dom;
+  });
+
+  tabel.innerHTML+=`
+  <tr style="background:#e8f5f4;font-weight:600;">
+
+   <td colspan="2">TOTAL</td>
+
+   <td>${r(totalB3Hari)} kg</td>
+
+   <td>${r(totalDomHari)} kg</td>
+
+   <td class="total-green">
+    ${r(totalHari)} kg
+   </td>
+
+   <td></td>
+
+  </tr>`;
+
+  dataBulananGlobal=bulanan;
+
+  isiDropdownBulan(bulanan);
+
+  renderChart(bulanan);
+ });
+}
+
+
+// FILTER TANGGAL
+filterTanggal.onchange=()=>{
+ loadData();
+};
+
+
+// EDIT
+function edit(id,b3v,domv,n){
+
+ nama.value=n;
+ b3.value=b3v;
+ dom.value=domv;
+
+ total.innerText=
+ r(b3v+domv)+" kg";
+
+ editId=id;
+}
+
+
+// TOGGLE REKAP
+function toggleRekap(){
+
+ rekapBox.style.display=
+ rekapBox.style.display==="none"
+ ?"block"
+ :"none";
+}
+
+
+// DROPDOWN BULAN
+function isiDropdownBulan(data){
+
+ let select=document.getElementById("filterBulan");
+
+ select.innerHTML=
+ '<option value="">Semua Bulan</option>';
+
+ Object.keys(data).forEach(b=>{
+
+  select.innerHTML+=`
+  <option value="${b}">
+   ${b}
+  </option>`;
+ });
+}
+
+
+// FILTER BULAN
+filterBulan.onchange=()=>{
+
+ if(!filterBulan.value){
+
+  renderChart(dataBulananGlobal);
+ }
+
+ else{
+
+  let f={};
+
+  f[filterBulan.value]=
+  dataBulananGlobal[filterBulan.value];
+
+  renderChart(f);
+ }
+};
+
+
+// RENDER CHART
+function renderChart(data){
+
+ let labels=Object.keys(data);
+
+ let b3Data=
+ labels.map(b=>data[b].b3);
+
+ let domData=
+ labels.map(b=>data[b].dom);
+
+ if(chart) chart.destroy();
+
+ chart=new Chart(
+ document.getElementById("chart"),
+ {
+
+  type:'bar',
+
+  data:{
+
+   labels:labels,
+
+   datasets:[
+
+    {
+     label:'B3',
+     data:b3Data,
+     backgroundColor:'#F4C300'
+    },
+
+    {
+     label:'Domestik',
+     data:domData,
+     backgroundColor:'black'
+    }
+
+   ]
+  }
+ });
+
+ let totalB3=0;
+ let totalDom=0;
+
+ labels.forEach(b=>{
+
+  totalB3+=data[b].b3;
+  totalDom+=data[b].dom;
+ });
+
+ totalBulanan.innerHTML=
+ "Total B3: "+r(totalB3)+" kg | Domestik: "+r(totalDom)+" kg";
+}
+
+
+// PDF HARIAN
+function exportPDFHarian(){
+
+ const { jsPDF } = window.jspdf;
+
+ let doc=new jsPDF();
+
+ let tanggal=filterTanggal.value;
+
+ if(!tanggal){
+
+  alert("Pilih tanggal dulu");
+
+  return;
+ }
+
+ doc.setFont("helvetica","bold");
+ doc.setFontSize(16);
+
+ doc.text(
+  "LAPORAN LIMBAH HARIAN",
+  105,
+  20,
+  null,
+  null,
+  "center"
+ );
+
+ doc.setFontSize(11);
+ doc.setFont("helvetica","normal");
+
+ doc.text(
+  "RSUD KH. Muhammad Thohir Krui",
+  105,
+  28,
+  null,
+  null,
+  "center"
+ );
+
+ doc.text(
+  "Kesehatan Lingkungan",
+  105,
+  34,
+  null,
+  null,
+  "center"
+ );
+
+ doc.line(20,38,190,38);
+
+ doc.text("Tanggal : "+tanggal,20,50);
+
+ let rows=[];
+
+ let totalB3=0;
+ let totalDom=0;
+ let total=0;
+
+ dataHarianGlobal.forEach((d,i)=>{
+
+  rows.push([
+   i+1,
+   d.nama,
+   r(d.b3),
+   r(d.dom),
+   r(d.total)
+  ]);
+
+  totalB3+=d.b3;
+  totalDom+=d.dom;
+  total+=d.total;
+ });
+
+ rows.push([
+  "",
+  "TOTAL",
+  r(totalB3),
+  r(totalDom),
+  r(total)
+ ]);
+
+ doc.autoTable({
+
+  startY:60,
+
+  head:[[
+   "No",
+   "Petugas",
+   "B3",
+   "Domestik",
+   "Total"
+  ]],
+
+  body:rows,
+
+  styles:{
+   halign:'center'
+  },
+
+  headStyles:{
+   fillColor:[26,140,132]
+  }
+ });
+
+ let y=doc.lastAutoTable.finalY+20;
+
+ let now=new Date().toLocaleDateString('id-ID',{
+  day:'numeric',
+  month:'long',
+  year:'numeric'
+ });
+
+ doc.text("Krui, "+now,140,y);
+
+ doc.text("Ka. Ruang Kesling,",140,y+8);
+
+ doc.text("(__________________)",140,y+30);
+
+ doc.save("laporan-harian-"+tanggal+".pdf");
+}
+
+
+// PDF BULANAN
+function exportPDF(){
+
+ const { jsPDF } = window.jspdf;
+
+ let bulan=filterBulan.value;
+
+ if(!bulan)
+ return alert("Pilih bulan dulu");
+
+ let data=dataBulananGlobal[bulan];
+
+ let doc=new jsPDF();
+
+ doc.setFont("helvetica","bold");
+ doc.setFontSize(16);
+
+ doc.text(
+  "LAPORAN LIMBAH BULANAN",
+  105,
+  20,
+  null,
+  null,
+  "center"
+ );
+
+ doc.setFontSize(11);
+ doc.setFont("helvetica","normal");
+
+ doc.text(
+  "RSUD KH. Muhammad Thohir Krui",
+  105,
+  28,
+  null,
+  null,
+  "center"
+ );
+
+ doc.text(
+  "Kesehatan Lingkungan",
+  105,
+  34,
+  null,
+  null,
+  "center"
+ );
+
+ doc.line(20,38,190,38);
+
+ doc.setFontSize(12);
+
+ doc.text("Bulan : "+bulan,20,50);
+
+ doc.autoTable({
+
+  startY:60,
+
+  head:[[
+   "No",
+   "Jenis Limbah",
+   "Jumlah (kg)"
+  ]],
+
+  body:[
+   ["1","Limbah B3",r(data.b3)],
+   ["2","Limbah Domestik",r(data.dom)],
+   ["","TOTAL",r(data.b3+data.dom)]
+  ],
+
+  styles:{
+   halign:'center'
+  },
+
+  headStyles:{
+   fillColor:[26,140,132]
+  },
+
+  columnStyles:{
+   1:{halign:'left'}
+  }
+ });
+
+ let y=doc.lastAutoTable.finalY+20;
+
+ let tanggal=new Date().toLocaleDateString('id-ID',{
+  day:'numeric',
+  month:'long',
+  year:'numeric'
+ });
+
+ doc.text("Krui, "+tanggal,140,y);
+
+ doc.text("Ka. Ruang Kesling,",140,y+8);
+
+ doc.text("(__________________)",140,y+30);
+
+ doc.save("laporan-"+bulan+".pdf");
+}
+
+
+// LOAD
+loadData();
+
+</script>
+
+</body>
+</html>
